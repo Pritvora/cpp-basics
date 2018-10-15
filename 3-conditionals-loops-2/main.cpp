@@ -17,18 +17,22 @@ int main() {
 	cout << "Enter value accuracy eps>0 : ";
 	cin >> eps;
 	if ((abs(xn) >= 1) || (abs(xk) >= 1) || (dx < kEps) || (eps < kEps)) {
-		cout << "\t\ERROR IN THE VALUES OF VARIABLES\t\ " << endl;
+		cout << "\t\ERROR IN THE VALUES OF VARIABLES\t\ \n";
 		cout << "\t\NEED: |xn|<1 , |xk|<1 , eps>0 , dx>0 " << endl;
 	}
 	else {
-		cout << "|" << string(8, '\xc4') << "|" << string(13, '\xc4') << "|" << string(13, '\xc4') << "|" << string(8, '\xc4') << "|" << endl;
-		cout << "|" << setw(6) << "x" << setw(3) << "|" << setw(11) << "F" << setw(3) << "|" << setw(11) << "T" << setw(3) << "|" << setw(6) << "ITER" << setw(3) << "|" << endl;
-		cout << "|" << string(8, '\xc4') << "|" << string(13, '\xc4') << "|" << string(13, '\xc4') << "|" << string(8, '\xc4') << "|" << endl;
+		cout << "|" << string(8, '\xc4') << "|" << string(13, '\xc4') << "|";
+		cout << string(13, '\xc4') << "|" << string(8, '\xc4') << "|\n";
+		cout << "|" << setw(6) << "x" << setw(3) << "|" << setw(11) << "F";
+		cout << setw(3) << "|" << setw(11) << "T" << setw(3) << "|" << setw(6);
+		cout << "ITER" << setw(3) << "|\n";
+		cout << "|" << string(8, '\xc4') << "|" << string(13, '\xc4') << "|";
+		cout << string(13, '\xc4') << "|" << string(8, '\xc4') << "|\n";
 		for (double x = xn; x <= xk; x += dx) {
 			int n;
 			double F = log((1 + x) / (1 - x));
 			double Ty = 0;
-			for ( n = 0; n < MaxIter; n++) {
+			for (n = 0; n < MaxIter; n++) {
 				double tmp = 2 * (pow(x, 1 + n * 2) / (1 + n * 2));
 				if (abs(tmp) <= kEps)
 				{
@@ -36,10 +40,13 @@ int main() {
 				}
 				Ty += tmp;
 			}
-			cout << "|" << setw(6) << x << setw(3) << "|" << setw(11) << F << setw(3) << "|" << setw(11) << Ty << setw(3) << "|" << setw(6) << n << setw(3) << "|" << endl;
+			cout << "|" << setw(6) << x << setw(3) << "|" << setw(11) << F;
+			cout << setw(3) << "|" << setw(11) << Ty << setw(3);
+			cout << "|" << setw(6) << n << setw(3) << "|\n";
 		}
 
-		cout << "|" << string(8, '\xc4') << "|" << string(13, '\xc4') << "|" << string(13, '\xc4') << "|" << string(8, '\xc4') << "|" << endl;
+		cout << "|" << string(8, '\xc4') << "|" << string(13, '\xc4') << "|";
+		cout << string(13, '\xc4') << "|" << string(8, '\xc4') << "|\n";
 	}
 
 	return 0;
