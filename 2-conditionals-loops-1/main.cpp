@@ -3,71 +3,81 @@
 #include <iomanip>
 using namespace std;
 int main() {
-	double a, b, c, xn, xk, dx, F;
 	const double kEps = 1e-15;
-	cout << "Enter a=";
+
+	double a, b, c, xn, xk, dx;
+	cout << "Enter a = ";
 	cin >> a;
-	cout << "Enter b=";
+	cout << "Enter b = ";
 	cin >> b;
-	cout << "Enter c=";
+	cout << "Enter c = ";
 	cin >> c;
-	cout << "Enter xn=";
+	cout << "Enter xn = ";
 	cin >> xn;
-	cout << "Enter xk=";
+	cout << "Enter xk (xk >= xn) = ";
 	cin >> xk;
-	cout << "Enter dx=";
+	cout << "Enter dx (dx > 0) = ";
 	cin >> dx;
-	if (dx < kEps) {
-		cout << "ERROR" << string(10, ' ') << "NEED: dx>kEps\n";
+
+	if (dx <= 0) {
+		cout << "\nError. Need: dx > 0.\n";
+	}
+	else if (xn > xk) {
+		cout << "\nError. Need: xk >= xn.\n";
 	}
 	else {
-		cout << "|" << string(15, '\xc4') << "|";
-		cout << string(15, '\xc4') << "|\n";
+		cout << "|" << string(15, '\xc4');
+		cout << "|" << string(15, '\xc4') << "|\n";
+		cout << "|" << setw(8) << "x" << setw(8);
+		cout << "|" << setw(8) << "F" << setw(9) << "|\n";
+		cout << "|" << string(15, '\xc4');
+		cout << "|" << string(15, '\xc4') << "|\n";
 
-		cout << "|" << setw(8) << "x" << setw(8) << "|";
-		cout << setw(8) << "F" << setw(9) << "|\n";
+		cout << fixed;
+		cout.precision(3);
 
-		cout << "|" << string(15, '\xc4') << "|";
-		cout << string(15, '\xc4') << "|\n";
 		for (double x = xn; x <= xk; x += dx) {
+			cout << "|" << setw(10) << x << setw(6) << "|";
 
-			if ((x < 0) && (abs(b) > kEps)) {
+			double f;
+			if ((x < 0) && (abs(b) >= kEps)) {
 				if (abs(10 + b) < kEps) {
-					cout << "ERROR: 10+b!=0";
+					cout << " division by 0 |\n";
+					continue;
 				}
 				else {
-					F = a - (x / (10 + b));
+					f = a - x / (10 + b);
 				}
 			}
-			if ((x > 0) && (abs(b) < kEps)) {
+			else if ((x > 0) && (abs(b) < kEps)) {
 				if (abs(x - c) < kEps) {
-					cout << "ERROR: x-c!=0";
+					cout << " division by 0 |\n";
+					continue;
 				}
 				else {
-					F = (x - a) / (x - c);
+					f = (x - a) / (x - c);
 				}
 			}
 			else {
 				if (abs(c) < kEps) {
-					cout << "ERROR: c!=0";
+					cout << " division by 0 |\n";
+					continue;
 				}
 				else {
-					F = 3 * x + 2 / c;
+					f = 3 * x + 2 / c;
 				}
 			}
-			if (((int(a) | int(b)) & int(c)) != 0) {
 
-				cout << "|" << setw(8) << x << setw(8) << "|";
-				cout << setw(8) << F << setw(9) << "|\n";
-			}
-			else {
-
-				cout << "|" << setw(8) << x << setw(8) << "|" << setw(8);
-				cout << int(F) << setw(9) << "|\n";
-			}
-			cout << "|" << string(15, '\xc4') << "|";
-			cout << string(15, '\xc4') << "|\n";
+			int ac = static_cast<int>(a);
+			int bc = static_cast<int>(b);
+			int cc = static_cast<int>(c);
+			if ((ac | bc) & cc)
+				cout << setw(10) << f << setw(7);
+			else
+				cout << setw(8) << static_cast<int>(f) << setw(9);
+			cout << "|\n";
 		}
+		cout << "|" << string(15, '\xc4') << "|" << string(15, '\xc4') << "|";
 	}
 	return 0;
 }
