@@ -1,70 +1,72 @@
+
 #include <iostream>
-#include <cstdlib>
+
 using namespace std;
+
 int main() {
-	int  Max = -RAND_MAX, sum = 0, n, a, b, minEnd = 0, index = 0;
-	const int size = 10;
-	int arr[size] = { -5, -8, -7, -56, -4, -98, -1, -45, 25, -6 };
-	n = size - 1;
-	cout << "Array elements:" << endl;
-	while (index < size) {
-		cout << arr[index] << endl;
-		index++;
+	const int kArraySize = 10;
+	double arr[kArraySize] = { -6, 0, -7, -2, -4, -3, 2, -5, 1, -6 };
+
+	cout << "Array elements:\n";
+	for (int i = 0; i < kArraySize; i++)
+		cout << arr[i] << " ";
+	cout << endl;
+
+	double arr_max = arr[0];
+	for (int i = 1; i < kArraySize; i++) {
+		if (arr[i] > arr_max)
+			arr_max = arr[i];
 	}
-	for (int i = 0; i < size; i++) {
-		if (Max < *(arr + i)) {
-			Max = *(arr + i);
-		}
-	}
-	cout << "Sum of values to last plus number = ";
-	for (int i = 0; i < size; i++) {
-		if (arr[i] < 0) {
-			sum += arr[i];
-			if (i == 10) {
-				cout << sum << endl;
-			}
-		}
-	}
-	sum = 0;
-	for (int i = 0; i < size; i++) {
+	cout << "\nMaximum array element = " << arr_max << endl;
+
+	int last_positive_addr = -1;
+	for (int i = kArraySize; i >= 0; i--) {
 		if (arr[i] > 0) {
-			minEnd = i;
+			last_positive_addr = i;
+			break;
 		}
 	}
-	for (int i = 0; i < minEnd; i++) {
-		sum += arr[i];
-		if (i == minEnd - 1) {
-			cout << sum << endl;
-		}
-	}
+	if (last_positive_addr != -1) {
+		double sum_before_last_positive = 0.0;
+		for (int i = 0; i < last_positive_addr; i++)
+			sum_before_last_positive += arr[i];
 
-
-	cout << "Maximum array element = " << Max << endl;
-	cout << "Enter gap boundaries: " << endl << "a= ";
-	cin >> a;
-	cout << "b= ";
-	cin >> b;
-	int i = 0;
-	n = size;
-	if (a > b) {
-		cout << "ERROR>>>>NEED:a>=b";
+		cout << "Sum of elements before the last positive = ";
+		cout << sum_before_last_positive << endl;
 	}
 	else {
-		while (i < n) {
-			if (arr[i] <= b && arr[i] >= a) {
-				n -= 1;
-				for (int j = i; j < n; j++)
+		cout << "\nNo positive elements were found!\n";
+	}
+
+	double a, b;
+	cout << "\nEnter boundaries [a, b]:\n";
+	cout << "a = ";
+	cin >> a;
+	cout << "b = ";
+	cin >> b;
+
+	if (a <= b) {
+		int i = 0;
+		int num_kept_elements = kArraySize;
+		while (i < num_kept_elements) {
+			if (abs(arr[i]) >= a && abs(arr[i]) <= b) {
+				num_kept_elements--;
+				for (int j = i; j < num_kept_elements; j++)
 					arr[j] = arr[j + 1];
+				arr[num_kept_elements] = 0.0;
 			}
 			else {
-				i += 1;
+				i++;
 			}
 		}
 
-		for (i = n; i < size; i++) arr[i] = 0; {
-			for (i = 0; i < size; i++) {
-				cout << arr[i] << "  ";
-			}}
+		cout << "\nTransformed array:\n";
+		for (int i = 0; i < kArraySize; i++)
+			cout << arr[i] << " ";
+		cout << endl;
+	}
+	else {
+		cout << "\nERROR >>> NEED: a <= b\n";
 	}
 
 	return 0;
