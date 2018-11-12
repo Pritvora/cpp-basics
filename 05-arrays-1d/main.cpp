@@ -18,7 +18,7 @@ int main() {
 	cout << "\nMaximum array element = " << arr_max << endl;
 
 	int last_positive_addr = -1;
-	for (int i = kArraySize; i >= 0; i--) {
+	for (int i = kArraySize-1; i >= 0; i--) {
 		if (arr[i] > 0) {
 			last_positive_addr = i;
 			break;
