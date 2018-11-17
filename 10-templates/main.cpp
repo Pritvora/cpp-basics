@@ -1,137 +1,153 @@
-#include <fstream>
 #include <iostream>
+#include <fstream>
 #include <string>
+
 using namespace std;
 
-template <typename T>
-T** Input_Matrix(string fileName,int& n);
-template <typename T>
-void Print_Matrix(T** x,int n);
-template <typename T>
-void First_Task(T** x, int n);
-template <typename T>
-T Second_Task(T** x, int n);
-int main()
-{
-	int n=0;
-	string want_matrix;
-	cout << "Want matrix?What type do you want?(int/double/float)";
-	cin >> want_matrix;
-	if (want_matrix =="int" ) {
-		int** m = Input_Matrix<int>("matrix_int.txt", n);
-		Print_Matrix<int>(m, n);
-		First_Task<int>(m, n);
-		cout << "The minimum sum of modules of the elements";
-		cout << " of the diagonals that are parallel to the side:";
-		cout << Second_Task<int>(m, n) << endl;
+template <class T>
+T** ReadMatrix(string file_name, int& size);
 
+template <class T>
+void PrintMatrix(T** matrix, int size);
+
+template <class T>
+bool* FindNonNegativeCols(T** matrix, int size);
+
+template <class T>
+T SumCol(T** matrix, int size, int j);
+
+template <class T>
+T MinSecondaryDiagonalsSum(T** matrix, int size);
+
+template <class T>
+int Execute(string file_name);
+
+int main() {
+	string select;
+selection:
+	cout << "Want matrix? What type do you want? (0-int / 1-double / 2-float): ";
+	cin >> select;
+	if (select == "0") {
+		Execute<int>("matrix_int.txt");
 	}
-	if (want_matrix == "double") {
-		double** m = Input_Matrix<double>("matrix_double.txt", n);
-		Print_Matrix<double>(m, n);
-		First_Task<double>(m, n);
-		cout << "The minimum sum of modules of the elements";
-		cout << " of the diagonals that are parallel to the side:";
-		cout << Second_Task<double>(m, n) << endl;
-
+	else if (select == "1") {
+		Execute<double>("matrix_double.txt");
 	}
-	if (want_matrix == "float") {
-		float** m = Input_Matrix<float>("matrix_float.txt", n);
-		Print_Matrix<float>(m, n);
-		First_Task<float>(m, n);
-		cout << "The minimum sum of modules of the elements";
-		cout << " of the diagonals that are parallel to the side:";
-		cout << Second_Task<float>(m, n) << endl;
-
+	else if (select == "2") {
+		Execute<float>("matrix_float.txt");
+	}
+	else {
+		cout << "Error input! (Only 0, 1 or 2).\n\n";
+		goto selection;
 	}
 
-	
 	return 0;
 }
-template <typename T>
-T** Input_Matrix(string fileName ,int& n) {
-	ifstream in(fileName);
-	if (in.is_open())
-	{
 
-		while (!in.eof())
-		{
-			char symbol;
-			in.get(symbol);
-			if (symbol == ' ') n++;
-			if (symbol == '\n') break;
+template <class T>
+int Execute(string file_name) {
+	int size;
+	T** matrix = ReadMatrix<T>(file_name, size);
+	if (!matrix)
+		return 1;
+
+	PrintMatrix(matrix, size);
+	cout << endl;
+
+	bool* is_col_nonnegative = FindNonNegativeCols(matrix, size);
+	for (int j = 0; j < size; j++) {
+		if (is_col_nonnegative[j]) {
+			cout << "Sum of elements in " << j + 1 << " column: ";
+			cout << SumCol(matrix, size, j) << endl;
 		}
-		n++;
-		in.seekg(0, ios::beg);
-		in.clear();
-		T** x = new T*[n];
-		for (int i = 0; i < n; i++) x[i] = new T[n];
-		for (int i = 0; i < n; i++)
-			for (int j = 0; j < n; j++)
-				in >> x[i][j];
-
-		in.close();
-		return x;
-	}
-	else
-	{
-		cout << "File not found.";
-		return(0);
 	}
 
+	cout << "\nThe minimum among the sums of modules of elements of the\n";
+	cout << "diagonals parallel to the secondary diagonal of the matrix: ";
+	cout << MinSecondaryDiagonalsSum(matrix, size) << endl;
+
+	for (int i = 0; i < size; i++) delete[] matrix[i];
+	delete[] matrix;
+
+	return 0;
 }
-template <typename T>
-void Print_Matrix(T** x, int n) {
 
-	for (int i = 0; i < n; i++)
-	{
-		for (int j = 0; j < n; j++)
-			cout << x[i][j] << "\t";
+template <class T>
+T** ReadMatrix(string file_name, int& size) {
+	ifstream fin(file_name);
+	if (!fin) {
+		cout << "File \"" << file_name << "\" not found.";
+		return nullptr;
+	}
+
+	// Finds dimension of matrix.
+	size = 0;
+	while (!fin.eof()) {
+		char symbol;
+		fin.get(symbol);
+		if (symbol == ' ') size++;
+		if (symbol == '\n') break;
+	}
+	size++;
+	fin.seekg(0, ios::beg);
+	fin.clear();
+
+	// Reads from file.
+	T **matrix = new T*[size];
+	for (int i = 0; i < size; i++) {
+		matrix[i] = new T[size];
+		for (int j = 0; j < size; j++)
+			fin >> matrix[i][j];
+	}
+
+	fin.close();
+	return matrix;
+}
+
+template <class T>
+void PrintMatrix(T** matrix, int size) {
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < size; j++)
+			cout << matrix[i][j] << "\t";
 		cout << "\n";
 	}
-	cout << "dimension: " << n << endl;
 }
-template <typename T>
-void First_Task(T** x, int n) {
 
-	bool ot = false;
-	for (int j = 0; j < n; j++) {
-		bool hm = false;
-		for (int i = 0; i < n; i++) {
-			if (x[i][j] < 0) {
-				hm = true;
+template <class T>
+bool* FindNonNegativeCols(T** matrix, int size) {
+	bool* is_col_nonnegative = new bool[size];
+	for (int j = 0; j < size; j++) {
+		is_col_nonnegative[j] = 1;
+		for (int i = 0; i < size; i++) {
+			if (matrix[i][j] < 0) {
+				is_col_nonnegative[j] = 0;
+				break;
 			}
 		}
-		if (!hm) {
-			T sum = 0;
-			ot = true;
-			for (int i = 0; i < n; i++) {
-				sum += x[i][j];
-			}
-			cout << "Sum of items in " << j + 1 << " column:";
-			cout << sum << endl;
-		}
 	}
-	if (!ot) {
-		cout << "\nError:  all columns has minus elements" << endl;
-	}
-
-
+	return is_col_nonnegative;
 }
-template <typename T>
-T Second_Task(T** x, int n) {
-	T min = -1;
-	for (int i = 0; i < n * 2 - 1; i++) {
-		T sumd = 0;
+
+template <class T>
+T SumCol(T** matrix, int size, int j) {
+	T sum = 0;
+	for (int i = 0; i < size; i++)
+		sum += matrix[i][j];
+	return sum;
+}
+
+template <class T>
+T MinSecondaryDiagonalsSum(T** matrix, int size) {
+	T min = matrix[0][0];
+	for (int i = 1; i < size * 2 - 1; i++) {
+		T sum_diagonal = 0;
 		for (int j = 0; j <= i; j++) {
-			if (j < n && i - j < n)
-			{
-				sumd += abs(x[j][i - j]);
-			}
+			if (j < size && i - j < size)
+				sum_diagonal += abs(matrix[j][i - j]);
 		}
-		if ((sumd < min) || (min == -1)) {
-			min = sumd;
-		}
+
+		if (sum_diagonal < min)
+			min = sum_diagonal;
 	}
 	return min;
 }

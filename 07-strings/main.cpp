@@ -1,72 +1,76 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-
+#include <sstream>
 
 using namespace std;
 
-int main()
-{
-	string str;
-	string newStr = "";
-	char prop[] = { ' ', '.', ':', ';', '?', ',' };
-
-	ifstream file("text.txt");
-	if (!file.is_open())
-	{
-		cout << "Error!!!\n" << endl;
-		return 0;
+int main() {
+	ifstream fin("text.txt");
+	if (!fin) {
+		cout << "File \"text.txt\" not found.";
+		return 1;
 	}
-	else {
 
+	// Print text.
+	string line;
+	while (getline(fin, line))
+		cout << line << endl;
+	cout << endl;
 
-		while (file) {
-			getline(file, str);
-			str += " ";
-			int prevSpace = -1,
-				firstSpace = (int )str.find(' '),
-				secondSpace =(int)str.find(' ', firstSpace + 1);
-			while (firstSpace != -1 && secondSpace != -1)
-			{
-				string a1 = "", a2 = "";
-				for (int i = 0; i < 6; i++)
-				{
-					if (str[firstSpace - 1] == prop[i])
-					{
-						a1 += prop[i];
-						firstSpace--;
-					}
-					if (str[secondSpace - 1] == prop[i])
-					{
-						a2 += prop[i];
-						secondSpace--;
-					}
+	fin.clear();
+	fin.seekg(0, ios::beg);
+
+	// Swap words in text.
+	string first_word, second_word;
+	while (getline(fin, line)) {
+		string word;
+		stringstream sin(line);
+		bool is_first_word = true;
+		while (sin >> word) {
+			if (is_first_word) {
+				first_word = word;
+				is_first_word = false;
+			}
+			else {
+				second_word = word;
+				is_first_word = true;
+
+				string puncts[4];
+
+				size_t first_word_len = first_word.length();
+				if (ispunct(first_word[0]) && first_word[0] != '"') {
+					puncts[0] = first_word[0];
+					first_word = first_word.substr(1, first_word_len);
+					first_word_len--;
 				}
-				int off1 = 1;
-				if (str[firstSpace + off1] == ' ')
-					off1 = 2;
-				int off2 = 1;
-				if (str[prevSpace + off2] == ' ')
-					off2 = 2;
-				newStr += str.substr(firstSpace + off1, secondSpace - firstSpace - off1) + a1 + " "  ;
-				newStr += str.substr(prevSpace + off2, firstSpace - prevSpace - off2) + a2 + " ";
-				prevSpace = secondSpace,
-					firstSpace = (int)str.find(' ', secondSpace + 2);
-				secondSpace = (int)str.find(' ', firstSpace + 2);
+				if (ispunct(first_word[first_word_len - 1]) &&
+					first_word[first_word_len - 1] != '"') {
+					puncts[1] = first_word[first_word_len - 1];
+					first_word = first_word.substr(0, first_word_len - 1);
+					first_word_len--;
+				}
+
+				size_t second_word_len = second_word.length();
+				if (ispunct(second_word[0]) && second_word[0] != '"') {
+					puncts[2] = second_word[0];
+					second_word = second_word.substr(1, second_word_len);
+					second_word_len--;
+				}
+				if (ispunct(second_word[second_word_len - 1]) &&
+					second_word[second_word_len - 1] != '"') {
+					puncts[3] = second_word[second_word_len - 1];
+					second_word = second_word.substr(0, second_word_len - 1);
+					second_word_len--;
+				}
+
+				cout << puncts[0] << second_word << puncts[1] << " ";
+				cout << puncts[2] << first_word << puncts[3] << " ";
 			}
-			
-			if (firstSpace != -1)
-			{
-				newStr += str.substr(prevSpace + 1, firstSpace - prevSpace);
-			}
-			newStr += "\r\n";
-			cout << str<<endl;
 		}
-	
-
-		cout <<endl<< newStr;
-		file.close();
-
-		return 0;
+		cout << endl;
 	}
+
+	fin.close();
+	return 0;
 }

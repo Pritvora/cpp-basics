@@ -1,105 +1,111 @@
-	#include <fstream>
-	#include <iostream>
-	using namespace std;
+#include <fstream>
+#include <iostream>
+using namespace std;
 
-	int n = 0;
-	int** Input_Matrix();
-	void Print_Matrix(int** x);
-	void First_Task(int** x);
-	int Second_Task(int** x);
-	int main()
-	{
-		int** m= Input_Matrix();
-		Print_Matrix(m);
-		First_Task(m);
+int** ReadMatrix(int& size);
+void PrintMatrix(int** matrix, int size);
+bool* FindNonNegativeCols(int** matrix, int size);
+int SumCol(int** matrix, int size, int j);
+int MinSecondaryDiagonalsSum(int** matrix, int size);
 
-		cout << "The minimum sum of modules of the elements";
-		cout<<" of the diagonals that are parallel to the side:";
-		cout << Second_Task(m) << endl;
+int main() {
+	int size;
+	int** matrix = ReadMatrix(size);
+	if (!matrix)
+		return 1;
 
-		return 0;
+	PrintMatrix(matrix, size);
+	cout << endl;
+
+	bool* is_col_nonnegative = FindNonNegativeCols(matrix, size);
+	for (int j = 0; j < size; j++) {
+		if (is_col_nonnegative[j]) {
+			cout << "Sum of elements in " << j + 1 << " column: ";
+			cout << SumCol(matrix, size, j) << endl;
+		}
 	}
 
-	int** Input_Matrix() {
-		ifstream in("matrix.txt");
-		if (in.is_open())
-		{
-		
-			while (!in.eof())
-			{
-				char symbol;
-				in.get(symbol);
-				if (symbol == ' ') n++;
-				if (symbol == '\n') break;
-			}
-			n++;
-			in.seekg(0, ios::beg);
-			in.clear();
-			int **x = new int*[n];
-			for (int i = 0; i < n; i++) x[i] = new int[n];
-			for (int i = 0; i < n; i++)
-				for (int j = 0; j < n; j++)
-					in >> x[i][j];
-		
-			in.close();
-			return x;
-		}
-		else
-		{
-			cout << "File not found.";
-			return(0);
-		}
-	
+	cout << "\nThe minimum among the sums of modules of elements of the\n";
+	cout << "diagonals parallel to the secondary diagonal of the matrix: ";
+	cout << MinSecondaryDiagonalsSum(matrix, size) << endl;
+
+	for (int i = 0; i < size; i++) delete[] matrix[i];
+	delete[] matrix;
+
+	return 0;
+}
+
+int** ReadMatrix(int& size) {
+	ifstream fin("matrix.txt");
+	if (!fin) {
+		cout << "File \"matrix.txt\" not found.";
+		return nullptr;
 	}
-	void Print_Matrix(int** x) {
-	
-		for (int i = 0; i < n; i++)
-		{
-			for (int j = 0; j < n; j++)
-				cout << x[i][j] << "\t";
-			cout << "\n";
-		}
-		cout << "dimension: " << n<< endl;
+
+	// Finds dimension of matrix.
+	size = 0;
+	while (!fin.eof()) {
+		char symbol;
+		fin.get(symbol);
+		if (symbol == ' ') size++;
+		if (symbol == '\n') break;
 	}
-	void First_Task(int** x) {
-	
-		bool ot = false;
-		for (int j = 0; j < n;j++) {
-			bool hm = false;
-			for (int i = 0; i < n;i++) {
-				if (x[i][j] < 0) {
-					hm = true;
-				}
-			}
-			if (!hm) {
-				int sum = 0;
-				ot = true;
-				for (int i = 0; i < n; i++) {
-					sum += x[i][j];
-				}
-				cout << "Sum of items in "<<j+1<<" column:";
-				cout << sum << endl;
-			}
-		}
-		if (!ot) {
-			cout << "\nError:  all columns has minus elements" << endl;
-		}
-	
-	
+	size++;
+	fin.seekg(0, ios::beg);
+	fin.clear();
+
+	// Reads from file.
+	int **matrix = new int*[size];
+	for (int i = 0; i < size; i++) {
+		matrix[i] = new int[size];
+		for (int j = 0; j < size; j++)
+			fin >> matrix[i][j];
 	}
-	int Second_Task(int** x) {
-		int min = -1;
-		for (int i = 0; i < n * 2 - 1; i++) {
-			int sumd = 0;
-			for (int j = 0; j <= i; j++) {
-				if (j < n && i - j < n)
-				{
-					sumd += abs(x[j][i - j]);
-				}
-			}
-			if ((sumd < min) || (min == -1)) {
-				min = sumd;
+
+	fin.close();
+	return matrix;
+}
+
+void PrintMatrix(int** matrix, int size) {
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < size; j++)
+			cout << matrix[i][j] << "\t";
+		cout << "\n";
+	}
+}
+
+bool* FindNonNegativeCols(int** matrix, int size) {
+	bool* is_col_nonnegative = new bool[size];
+	for (int j = 0; j < size; j++) {
+		is_col_nonnegative[j] = 1;
+		for (int i = 0; i < size; i++) {
+			if (matrix[i][j] < 0) {
+				is_col_nonnegative[j] = 0;
+				break;
 			}
 		}
-		return min;
 	}
+	return is_col_nonnegative;
+}
+
+int SumCol(int** matrix, int size, int j) {
+	int sum = 0;
+	for (int i = 0; i < size; i++)
+		sum += matrix[i][j];
+	return sum;
+}
+
+int MinSecondaryDiagonalsSum(int** matrix, int size) {
+	int min = matrix[0][0];
+	for (int i = 1; i < size * 2 - 1; i++) {
+		int sum_diagonal = 0;
+		for (int j = 0; j <= i; j++) {
+			if (j < size && i - j < size)
+				sum_diagonal += abs(matrix[j][i - j]);
+		}
+
+		if (sum_diagonal < min)
+			min = sum_diagonal;
+	}
+	return min;
+}

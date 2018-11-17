@@ -2,6 +2,7 @@
 #include <string>
 #include <iomanip>
 using namespace std;
+
 int main() {
 	const double kEps = 1e-15;
 

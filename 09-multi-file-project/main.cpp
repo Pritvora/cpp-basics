@@ -1,22 +1,21 @@
-#include <iostream>
 #include "functions.h"
-
-
-
-using namespace std;
 
 int main() {
 	const int kArraySize = 10;
-	double arr[kArraySize] = { -6, 0, -7, -2, -4, -3, 2, -5, 1, -6 };
+	double arr[kArraySize] = { -6, 0, -7.1, 2, -0.1, -3.1, 2, -5, 1, -6 };
 
+	cout << "Array elements:\n";
 	PrintArray(arr, kArraySize);
+
 	cout << "\nMaximum array element = " << FindMax(arr, kArraySize) << endl;
-	int last_positive_addr= FindLastPositive(arr,  kArraySize);
-	
+
+	int last_positive_addr = FindLastPositiveAddr(arr, kArraySize);
+	cout << "\nSum of elements before the last positive = ";
 	if (last_positive_addr != -1) {
-	
-		cout << "Sum of elements before the last positive = ";
-		cout << Sum(arr, last_positive_addr) << endl;
+		if (last_positive_addr != 0)
+			cout << GetSum(arr, kArraySize, last_positive_addr) << endl;
+		else
+			cout << "\nLast positive element is the first one!\n";
 	}
 	else {
 		cout << "\nNo positive elements were found!\n";
@@ -30,8 +29,7 @@ int main() {
 	cin >> b;
 
 	if (a <= b) {
-		
-		DeleteOutOf( arr,  kArraySize, a,  b);
+		TransformArray(arr, kArraySize, a, b);
 		cout << "\nTransformed array:\n";
 		PrintArray(arr, kArraySize);
 	}

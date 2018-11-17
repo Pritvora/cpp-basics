@@ -1,23 +1,20 @@
-#include <iostream>
-#include <iomanip>
+#include "functions.h"
 
-using namespace std;
-
-void PrintArray(double arr[], int kArraySize) {
-	cout << "Array elements:\n";
+void PrintArray(double arr[], const int kArraySize) {
 	for (int i = 0; i < kArraySize; i++)
-		cout << arr[i] << " ";
+		cout << arr[i] << "  ";
 	cout << endl;
 }
-double FindMax(double arr[], int kArraySize) {
+
+double FindMax(double arr[], const int kArraySize) {
 	double arr_max = arr[0];
-	for (int i = 1; i < kArraySize; i++) {
+	for (int i = 1; i < kArraySize; i++)
 		if (arr[i] > arr_max)
 			arr_max = arr[i];
-	}
 	return arr_max;
 }
-int FindLastPositive(double arr[], int kArraySize) {
+
+int FindLastPositiveAddr(double arr[], const int kArraySize) {
 	int last_positive_addr = -1;
 	for (int i = kArraySize - 1; i >= 0; i--) {
 		if (arr[i] > 0) {
@@ -27,12 +24,15 @@ int FindLastPositive(double arr[], int kArraySize) {
 	}
 	return last_positive_addr;
 }
-double Sum(double arr[], int last_ind) {
+
+double GetSum(double arr[], const int kArraySize, int end) {
 	double sum = 0.0;
-	for (int i = 0; i < last_ind; i++)
+	for (int i = 0; i < end; i++)
 		sum += arr[i];
+	return sum;
 }
-void DeleteOutOf(double arr[], int kArraySize, double a, double b) {
+
+void TransformArray(double arr[], const int kArraySize, double a, double b) {
 	int i = 0;
 	int num_kept_elements = kArraySize;
 	while (i < num_kept_elements) {
